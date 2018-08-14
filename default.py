@@ -197,6 +197,7 @@ try:
     ###############################################################################
     _profile_ = xbmc.translatePath(_addon_.getAddonInfo('profile')).decode("utf-8")
     _lang_   = _addon_.getLocalizedString
+    _xml_lang_ = "cz"
 #    _first_error_ = (_addon_.getSetting('first_error') == "true")
     _send_errors_ = (_addon_.getSetting('send_errors') == "true")
     _version_ = _addon_.getAddonInfo('version')
@@ -408,14 +409,14 @@ try:
             os.remove(_save_epg_lock_file_)
         queries = {
             'emptyGenreUpdated': [
-                "UPDATE epg SET genre = 'iné/nezaradené' WHERE genre = ''"
+                "UPDATE epg SET genre = 'jiné/nezařazené' WHERE genre = ''"
             ],
             'genreUpdated': [
                 "UPDATE epg SET genre = REPLACE(genre, ' - ', ' / ') WHERE genre LIKE '% - %'", 
-                "UPDATE epg SET genre = REPLACE(genre, 'akční / dobrodružný','akční/dobrodružný') WHERE genre LIKE '%akční / dobrodružný%'", 
-                "UPDATE epg SET genre = REPLACE(genre, 'dětský / rodinný','dětský/rodinný') WHERE genre LIKE '%dětský / rodinný%'", 
-                "UPDATE epg SET genre = REPLACE(genre, 'sci-fi / fantasy','sci-fi/fantasy') WHERE genre LIKE '%sci-fi / fantasy%'", 
-                "UPDATE epg SET genre = REPLACE(genre, 'iné / nezaradené','iné/nezaradené') WHERE genre LIKE '%iné / nezaradené%'"
+                "UPDATE epg SET genre = REPLACE(genre, 'akční / dobrodružné','akční/dobrodružné') WHERE genre LIKE '%akční / dobrodružné%'",
+                "UPDATE epg SET genre = REPLACE(genre, 'dětské / rodinné','dětské/rodinné') WHERE genre LIKE '%dětské / rodinné%'",
+                "UPDATE epg SET genre = REPLACE(genre, 'sci-fi / fantasy','sci-fi/fantasy') WHERE genre LIKE '%sci-fi / fantasy%'",
+                "UPDATE epg SET genre = REPLACE(genre, 'jiné / nezařazené','jiné/nezařazené') WHERE genre LIKE '%jiné / nezařazené%'"
             ], 
             'channelColumnsAdded': [
                 "ALTER TABLE channels ADD icon TEXT", 
@@ -562,9 +563,9 @@ try:
                             ttlSeconds = 0-ttlSeconds
                         if ttlSeconds >= (24*3600):
                             ttlSeconds -= (24*3600) # Because time.gmtime() shows day 0 as 1 (date)
-                            ttlFormat = '%-dd %H:%M'
+                            ttlFormat = '-%d %H:%M'
                         else:
-                            ttlFormat = '0d %H:%M'
+                            ttlFormat = '%d %H:%M'
                         ttl = ttlMinus+time.strftime(ttlFormat, time.gmtime(ttlSeconds))
                         airingTime = _timestampToNiceDateTime(item["start"], item["end"])
                         if calledFrom == "home":
@@ -1067,9 +1068,8 @@ try:
             #logDbg("saveEPG() - checkpoint 3b", idSuffix=logIdSuffix)
             channel = channelsDict[key]
             et_channel = etree.SubElement(et_tv, "channel", id=channel["channel_key"])
-            etree.SubElement(et_channel, "display-name", lang="sk").text = channel["name"]
+            etree.SubElement(et_channel, "display-name", lang=_xml_lang_).text = channel["name"]
             i += 1
-            #logDbg("saveEPG() - checkpoint 3e", idSuffix=logIdSuffix)
         _setSaveEpgLock()
         #logDbg("saveEPG() - checkpoint 4", idSuffix=logIdSuffix)
 
@@ -1171,7 +1171,7 @@ try:
                             genres = prg_detail['genres']
                             genre = " / ".join(genres)
                         if genre is None or len(genre) == 0:
-                            genre = "iné/nezaradené"
+                            genre = "jiné/nezařazené"
                             genres = [genre, ]
                         genreDB = genre
                         genresDB = json.dumps(genres)
@@ -1233,14 +1233,14 @@ try:
                 else:
                     et_programme.set("start", str(_timestampishToEpgTime(prg['startTimestamp'])))
                     et_programme.set("stop", str(_timestampishToEpgTime(prg['endTimestamp'])))
-                etree.SubElement(et_programme, "title", lang="sk").text = prg['title']
-                etree.SubElement(et_programme, "sub-title", lang="sk").text = prg['plotoutline']
-                etree.SubElement(et_programme, "desc", lang="sk").text = prg['plot']
+                etree.SubElement(et_programme, "title", lang=_xml_lang_).text = prg['title']
+                etree.SubElement(et_programme, "sub-title", lang=_xml_lang_).text = prg['plotoutline']
+                etree.SubElement(et_programme, "desc", lang=_xml_lang_).text = prg['plot']
                 if "fanart_image" in prg and prg["fanart_image"]:
                     et_programme_icon = etree.SubElement(et_programme, "icon")
                     et_programme_icon.set("src", prg["fanart_image"])
                 if "genre" in prg and prg["genre"]:
-                    etree.SubElement(et_programme, "category", lang="sk").text = prg["genre"]
+                    etree.SubElement(et_programme, "category", lang=_xml_lang_).text = prg["genre"]
                 _setSaveEpgLock()
             i += 1
         ## END: for
@@ -1370,7 +1370,7 @@ try:
             et_programme = etree.SubElement(et_tv, "programme", id="prg1")
             et_programme.set("start", "201701142000")
             et_programme.set("stop", "201701142100")
-            etree.SubElement(et_programme, "title", lang="sk").text = "title"
+            etree.SubElement(et_programme, "title", lang=_xml_lang_).text = "title"
             logDbg(etree.tostring(et_tv, encoding='utf8'))
         #else:
             #return et_tv, False
