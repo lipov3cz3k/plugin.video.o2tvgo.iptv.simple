@@ -65,7 +65,7 @@ def upgradeConfigsFromJsonToDb():
                                         plotoutline = oneEpg["plotoutline"],
                                         fanart_image = oneEpg["fanart_image"],
                                         genre = oneEpg["genre"],
-                                        genres = json.dumps(oneEpg["genres"]), 
+                                        genres = json.dumps(oneEpg["genres"]),
                                         channelID=channelID)
                                     if idNew:
                                         print("Success - JSON "+str(i)+"!")
@@ -97,20 +97,20 @@ def upgradeConfigsFromJsonToDb():
         _db_.setLock("saveEpgRunning", fMtime)
         #os.remove(_save_epg_lock_file_)
     return True
-    
+
 if __name__ == '__main__':
     db_path = "/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/o2tvgo.db"
     _db_ = O2tvgoDB(db_path=db_path, profile_path="/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/",  plugin_path="",_notification_disable_all_=False, _logs_=None)
-    
+
 #    res = upgradeConfigsFromJsonToDb()
-    
+
     print(_db_.getLock("lastRestart"))
-    
+
 #    timestampNow = int(time.time())
 #    olderThan = (timestampNow -  (2*24*3600))
 #    print(timestampNow,  olderThan)
 #    _db_.deleteOldEpg(endBefore = olderThan)
-    
+
     _epgLockTimeout_ = 10*60
     locktime = _db_.getLock("saveEpgRunning")
     if locktime == False:
@@ -124,9 +124,9 @@ if __name__ == '__main__':
         print(str(timestampNow))
         print(str(locktime))
         print(str(timestampNow - locktime))
-        
+
     print(_db_.getEpgRow(7497,  35))
-    
+
 #    res = _db_.cleanEpgDuplicates(doDelete = True)
 #    if res:
 #        if res["duplicates"]:
@@ -134,11 +134,11 @@ if __name__ == '__main__':
 #        if res["toDelete"]:
 #            print(len(res["toDelete"]))
 #    print(res)
-    
+
 #    print(_db_.getChannelRow(4))
 #    print(_db_.getChannels())
 #    print(_db_.getEpgRows(10))
-    
+
 #    id = _db_.getChannelID(None, 'Jednotka HD1', 'Jednotka_HD1', 'Jednotka HD1')
 #    print(id)
 #    if not id:

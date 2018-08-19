@@ -14,7 +14,7 @@ class Logs:
             self.id = id
         else:
             self.id = ""
-    
+
     def _toString(self, text):
         if type(text).__name__=='unicode':
             output = text.encode('utf-8')

@@ -152,7 +152,7 @@ class JsonRPC:
             self.logErr("Could not channel ID "+str(channelID)+": No response from JSONRPC")
             self.logDbg('payloadJson: '+payloadJson)
             self.logDbg('jsonResponse: '+jsonResponse)
-    
+
     def getNowPlayed(self):
         payload = {
             'jsonrpc': '2.0',
@@ -167,7 +167,7 @@ class JsonRPC:
         jsonResponse = xbmc.executeJSONRPC(payloadJson)
         if jsonResponse:
             respponseDecoded = json.loads(jsonResponse)
-            
+
         if "result" in respponseDecoded and "item" in respponseDecoded["result"]:
             return respponseDecoded["result"]["item"]
         return False

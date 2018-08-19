@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import sqlite3,  re, json
+import sqlite3, re, json
 
 class O2tvgoDB:
-    def __init__(self,  db_path, profile_path, plugin_path, _notification_disable_all_, _logs_, scriptname="O2TVGO/IPTVSimple", logId="O2TVGO/IPTVSimple"):
+    def __init__(self, db_path, profile_path, plugin_path, _notification_disable_all_, _logs_, scriptname="O2TVGO/IPTVSimple", logId="O2TVGO/IPTVSimple"):
         self.db_path = db_path
         self.connection = False
         self.cursor = False
@@ -18,21 +18,21 @@ class O2tvgoDB:
         self.logIdSuffix = "/db.py/O2tvgoDB"
         self.scriptname = scriptname
         self.logId = logId
-        
+
         self.tablesOK = False
-        
+
         self.check_tables()
         self.cleanEpgDuplicates(doDelete = True)
         self.cleanChannelDuplicates(doDelete = True)
-        
+
     def __del__(self):
         self.cleanEpgDuplicates(doDelete = True)
         self.cleanChannelDuplicates(doDelete = True)
         self.closeDB()
-    
+
     def log(self, msg):
         if self._logs_:
-            return self._logs_.log(msg,  idSuffix=self.logIdSuffix)
+            return self._logs_.log(msg, idSuffix=self.logIdSuffix)
         else:
             print("["+self.logId+self.logIdSuffix+"] LOG: "+msg)
     def logDbg(self, msg):
@@ -55,32 +55,32 @@ class O2tvgoDB:
             return self._logs_.logErr(msg, idSuffix=self.logIdSuffix)
         else:
             print("["+self.logId+self.logIdSuffix+"] LOG ERR: "+msg)
-    def notificationInfo(self, msg, sound = False,  force = False, dialog = True):
+    def notificationInfo(self, msg, sound = False, force = False, dialog = True):
         self.logNtc(msg)
         if (dialog and not self._notification_disable_all_) or force:
             if self._logs_:
-                return self._logs_.notificationInfo(msg,  sound)
+                return self._logs_.notificationInfo(msg, sound)
             else:
                 print("["+self.logId+self.logIdSuffix+"] LOG NOTIF INFO: "+msg)
-    def notificationWarning(self, msg, sound = True,  force = False, dialog = True):
+    def notificationWarning(self, msg, sound = True, force = False, dialog = True):
         self.logWarn(msg)
         if (dialog and not self._notification_disable_all_) or force:
             if self._logs_:
-                return self._logs_.notificationWarning(msg,  sound)
+                return self._logs_.notificationWarning(msg, sound)
             else:
                 print("["+self.logId+self.logIdSuffix+"] LOG NOTIF WARNING: "+msg)
-    def notificationError(self, msg, sound = True,  force = False, dialog = True):
+    def notificationError(self, msg, sound = True, force = False, dialog = True):
         self.logErr(msg)
         if (dialog and not self._notification_disable_all_) or force:
             if self._logs_:
-                return self._logs_.notificationError(msg,  sound)
+                return self._logs_.notificationError(msg, sound)
             else:
                 print("["+self.logId+self.logIdSuffix+"] LOG NOTIF ERROR: "+msg)
 
     def commit(self):
         if self.connection:
             self.connection.commit()
-    
+
     def connectDB(self):
         if not self.connection:
             self.connection = sqlite3.connect(self.db_path)
@@ -89,13 +89,13 @@ class O2tvgoDB:
             # enable foreign keys: #
             self.connection.execute("PRAGMA foreign_keys = 1")
             self.cursor = self.connection.cursor()
-        
+
     def closeDB(self):
         if self.connection:
             self.commit()
             self.connection.close()
             self.connection = False
-    
+
     def cexec(self, sql, vals=None):
         self.connectDB()
         try:
@@ -107,7 +107,7 @@ class O2tvgoDB:
             return self.cursor.lastrowid
         except Exception as ex:
             self.logWarn("Exception while executing a query ("+sql+"): "+str(ex))
-    
+
     def cexecscript(self, sql, vals=None):
         if not self.connection:
             self.connection = sqlite3.connect(self.db_path)
@@ -116,10 +116,10 @@ class O2tvgoDB:
             # enable foreign keys: #
             self.connection.execute("PRAGMA foreign_keys = 1")
             self.cursor = self.connection.cursor()
-        
+
         try:
             if vals:
-                self.cursor.executescript(sql,  vals)
+                self.cursor.executescript(sql, vals)
             else:
                 self.cursor.executescript(sql)
             self.commit()
@@ -128,7 +128,7 @@ class O2tvgoDB:
             self.logWarn("Exception while creating a script query: "+str(ex))
             self.logNtc("The script query was: "+sql)
         return False
-    
+
     def check_tables(self):
         expectedCount = 4
         self.cexec("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('epg', 'channels', 'favourites', 'lock');")
@@ -151,15 +151,15 @@ class O2tvgoDB:
                 self.logWarn("Exception while creating tables: "+str(ex))
                 print(createTablesPath)
                 print(createTablesSql)
-    
+
     def addChannel(self, key, keyClean, name, baseName, icon="", num=0):
         if not self.tablesOK:
             return False
         if not keyClean:
             keyClean = re.sub(r"[^a-zA-Z0-9_]", "_", key)
-        id = self.cexec("INSERT INTO channels (\"key\", keyClean, name, baseName, icon, num) VALUES (?, ?, ?, ?, ?, ?)",  (key, keyClean, name, baseName, icon, num))
+        id = self.cexec("INSERT INTO channels (\"key\", keyClean, name, baseName, icon, num) VALUES (?, ?, ?, ?, ?, ?)", (key, keyClean, name, baseName, icon, num))
         return id
-    
+
     def getChannelID(self, id=None, keyOld=None, keyCleanOld=None, nameOld=None, silent=False):
         if not self.tablesOK:
             return False
@@ -167,7 +167,7 @@ class O2tvgoDB:
             self.logWarn("No criteria for getting channel!")
             return False
         if id:
-            self.cexec("SELECT id FROM channels WHERE id = ?",  (id, ))
+            self.cexec("SELECT id FROM channels WHERE id = ?", (id, ))
             r = self.cursor.fetchone()
             if not r:
                 if not silent:
@@ -195,7 +195,7 @@ class O2tvgoDB:
                 where += " name = ?"
                 logWhere += " \"name\" = "+nameOld
                 vars = vars + (nameOld, )
-            self.cexec("SELECT id FROM channels WHERE "+where,  vars)
+            self.cexec("SELECT id FROM channels WHERE "+where, vars)
             all = self.cursor.fetchall()
             rowcount = len(all)
             if rowcount > 1:
@@ -209,50 +209,50 @@ class O2tvgoDB:
             r = all[0]
             id = r[0]
         return id
-    
+
     def getChannelRow(self, id=None, keyOld=None, keyCleanOld=None, nameOld=None, silent=False):
         if not self.tablesOK:
             return False
-        id = self.getChannelID(id, keyOld, keyCleanOld, nameOld,  True)
+        id = self.getChannelID(id, keyOld, keyCleanOld, nameOld, True)
         if not id:
             return {}
-        self.cexec("SELECT id, \"key\", keyClean, name, baseName, epgLastModTimestamp, icon, num FROM channels WHERE id = ?",  (id, ))
+        self.cexec("SELECT id, \"key\", keyClean, name, baseName, epgLastModTimestamp, icon, num FROM channels WHERE id = ?", (id, ))
         r = self.cursor.fetchone()
         if not r:
             if not silent:
                 self.logWarn("No row matches the channel search criteria for: id = "+id+"!")
             return {}
         return {
-            "id": r[0], 
-            "key": r[1], 
-            "keyClean": r[2], 
-            "name": r[3], 
-            "baseName": r[4], 
-            "epgLastModTimestamp": r[5], 
-            "icon": r[6], 
-            "num": r[7] 
+            "id": r[0],
+            "key": r[1],
+            "keyClean": r[2],
+            "name": r[3],
+            "baseName": r[4],
+            "epgLastModTimestamp": r[5],
+            "icon": r[6],
+            "num": r[7]
         }
-    
+
     def getChannels(self):
         self.cexec("SELECT id, \"key\", name, epgLastModTimestamp, icon, num FROM channels")
         i = 0
         channelDict = {}
         for row in self.cursor:
             channelDict[i] = {
-                "id": row["id"], 
+                "id": row["id"],
                 "name": row["name"],
-                "channel_key": row["key"], 
-                "epgLastModTimestamp": row["epgLastModTimestamp"], 
-                "icon": row["icon"], 
-                "num": row["num"] 
+                "channel_key": row["key"],
+                "epgLastModTimestamp": row["epgLastModTimestamp"],
+                "icon": row["icon"],
+                "num": row["num"]
             }
             i += 1
         return channelDict
-    
+
     def updateChannel(self, key=None, keyClean=None, name=None, baseName=None, epgLastModTimestamp=None, icon=None, num=None, id=None, keyOld=None, keyCleanOld=None, nameOld=None):
         if not self.tablesOK:
             return False
-        id = self.getChannelID(id, keyOld, keyCleanOld, nameOld,  True)
+        id = self.getChannelID(id, keyOld, keyCleanOld, nameOld, True)
         if id:
             rowDict = self.getChannelRow(id)
             if keyClean is None:
@@ -269,7 +269,7 @@ class O2tvgoDB:
                 icon = rowDict["icon"]
             if num is None:
                 num = rowDict["num"]
-            self.cexec("UPDATE channels SET \"key\" = ?, keyClean = ?, name = ?, baseName = ?, epgLastModTimestamp = ?, icon = ?, num = ? WHERE id = ?",  (key, keyClean, name, baseName, epgLastModTimestamp, icon, num, id ))
+            self.cexec("UPDATE channels SET \"key\" = ?, keyClean = ?, name = ?, baseName = ?, epgLastModTimestamp = ?, icon = ?, num = ? WHERE id = ?", (key, keyClean, name, baseName, epgLastModTimestamp, icon, num, id ))
         else:
             if not key or not name or not baseName:
                 return False
@@ -282,10 +282,10 @@ class O2tvgoDB:
             return self.addChannel(key, keyClean, name, baseName, icon, num)
         return id
 
-    def addEpg(self, epgId, start, startTimestamp, startEpgTime, end, endTimestamp, endEpgTime, title, plot="", plotoutline="", fanart_image="", genre="", genres="", isCurrentlyPlaying=None, isNextProgramme=None, inProgressTime=None, isRecentlyWatched=None, isWatchLater=None, channelID=None,  channelKey=None,  channelKeyClean=None,  channelName=None):
+    def addEpg(self, epgId, start, startTimestamp, startEpgTime, end, endTimestamp, endEpgTime, title, plot="", plotoutline="", fanart_image="", genre="", genres="", isCurrentlyPlaying=None, isNextProgramme=None, inProgressTime=None, isRecentlyWatched=None, isWatchLater=None, channelID=None, channelKey=None, channelKeyClean=None, channelName=None):
         if not self.tablesOK:
             return False
-        channelID = self.getChannelID(channelID,  channelKey,  channelKeyClean,  channelName)
+        channelID = self.getChannelID(channelID, channelKey, channelKeyClean, channelName)
         if not channelID:
             return False
         inp = {}
@@ -309,19 +309,19 @@ class O2tvgoDB:
                             inp["isCurrentlyPlaying"], inp["isNextProgramme"], inp["inProgressTime"], inp["isRecentlyWatched"], inp["isWatchLater"])
         )
         return id
-    
-    def getEpgID(self, id=None, epgIdOld=None, startOld=None, endOld=None, channelID=None,  channelKey=None,  channelKeyClean=None,  channelName=None, silent=False):
+
+    def getEpgID(self, id=None, epgIdOld=None, startOld=None, endOld=None, channelID=None, channelKey=None, channelKeyClean=None, channelName=None, silent=False):
         if not self.tablesOK:
             return False, False
-        channelID = self.getChannelID(id=channelID,  keyOld=channelKey,  keyCleanOld = channelKeyClean,  nameOld = channelName)
+        channelID = self.getChannelID(id=channelID, keyOld=channelKey, keyCleanOld = channelKeyClean, nameOld = channelName)
         if not channelID:
             return False, False
-        
+
         if not epgIdOld and not startOld and not endOld and not id:
             self.logWarn("No criteria for getting epg!")
             return False, channelID
         if id:
-            self.cexec("SELECT id FROM epg WHERE id = ? AND channelID = ?",  (id, channelID))
+            self.cexec("SELECT id FROM epg WHERE id = ? AND channelID = ?", (id, channelID))
             r = self.cursor.fetchone()
             if not r:
                 if not silent:
@@ -353,15 +353,15 @@ class O2tvgoDB:
             where = "("+where+") AND channelID = ?"
             logWhere = "("+logWhere+") AND channelID = "+str(channelID)
             vars = vars + (channelID, )
-            
-            self.cexec("SELECT id FROM epg WHERE "+where,  vars)
+
+            self.cexec("SELECT id FROM epg WHERE "+where, vars)
             all = self.cursor.fetchall()
             rowcount = len(all)
             if rowcount > 1:
                 self.logWarn("More than one row match the epg search criteria for: "+logWhere+"!")
                 res = self.cleanEpgDuplicates(doDelete=True)
                 if res and "cleaned" in res and res["cleaned"]:
-                    return self.getEpgID(id, epgIdOld, startOld, endOld, channelID,  channelKey,  channelKeyClean,  channelName, silent)
+                    return self.getEpgID(id, epgIdOld, startOld, endOld, channelID, channelKey, channelKeyClean, channelName, silent)
                 else:
                     self.logDbg("Duplicate cleaning result:")
                     self.logDbg(res)
@@ -372,17 +372,17 @@ class O2tvgoDB:
             r = all[0]
             id = r[0]
         return id, channelID
-    
+
     def removeEpgFromList(self, epgRowID, listColumn):
         if not self.tablesOK:
             return False
         self.cexec("UPDATE epg SET "+listColumn+" = ? WHERE id = ?", (0, epgRowID))
-        
-    def updateEpg(self, epgId=None, start=None, startTimestamp=None, startEpgTime=None, end=None, endTimestamp=None, endEpgTime=None, title=None, plot=None, plotoutline=None, fanart_image=None, genre=None, genres=None, isCurrentlyPlaying=None, isNextProgramme=None, inProgressTime=None, isRecentlyWatched=None, isWatchLater=None, id=None, epgIdOld=None, startOld=None, endOld=None, channelID=None,  channelKey=None,  channelKeyClean=None,  channelName=None):
+
+    def updateEpg(self, epgId=None, start=None, startTimestamp=None, startEpgTime=None, end=None, endTimestamp=None, endEpgTime=None, title=None, plot=None, plotoutline=None, fanart_image=None, genre=None, genres=None, isCurrentlyPlaying=None, isNextProgramme=None, inProgressTime=None, isRecentlyWatched=None, isWatchLater=None, id=None, epgIdOld=None, startOld=None, endOld=None, channelID=None, channelKey=None, channelKeyClean=None, channelName=None):
         if not self.tablesOK:
             return False
-        #def getEpgID(self, id=None, epgIdOld=None, startOld=None, endOld=None, channelID=None,  channelKey=None,  channelKeyClean=None,  channelName=None, silent=False):
-        id, channelID = self.getEpgID(id, epgIdOld, startOld, endOld, channelID, channelKey, channelKeyClean, channelName,  True)
+        #def getEpgID(self, id=None, epgIdOld=None, startOld=None, endOld=None, channelID=None, channelKey=None, channelKeyClean=None, channelName=None, silent=False):
+        id, channelID = self.getEpgID(id, epgIdOld, startOld, endOld, channelID, channelKey, channelKeyClean, channelName, True)
         if not channelID:
             return False
         if id:
@@ -399,27 +399,27 @@ class O2tvgoDB:
                     inp[col] = 0
                 else:
                     inp[col] = ""
-                    
+
             self.cexec('''
                 UPDATE epg
                 SET epgId = ?, "start" = ?, startTimestamp = ?, startEpgTime = ?, "end" = ?, endTimestamp = ?, endEpgTime = ?,
                     title = ?, plot = ?, plotoutline = ?, fanart_image = ?, genre = ?, genres = ?, channelID = ?,
                     isCurrentlyPlaying = ?, isNextProgramme = ?, inProgressTime = ?, isRecentlyWatched = ?, isWatchLater = ?
-                WHERE id = ?''',  (inp["epgId"], inp["start"], inp["startTimestamp"], inp["startEpgTime"], inp["end"], inp["endTimestamp"], inp["endEpgTime"],
+                WHERE id = ?''', (inp["epgId"], inp["start"], inp["startTimestamp"], inp["startEpgTime"], inp["end"], inp["endTimestamp"], inp["endEpgTime"],
                                     inp["title"], inp["plot"], inp["plotoutline"], inp["fanart_image"], inp["genre"], inp["genres"], inp["channelID"],
                                     inp["isCurrentlyPlaying"], inp["isNextProgramme"], inp["inProgressTime"], inp["isRecentlyWatched"], inp["isWatchLater"],
                                     id ))
         else:
             id = self.addEpg(epgId, start, startTimestamp, startEpgTime, end, endTimestamp, endEpgTime, title, plot, plotoutline, fanart_image, genre, genres, isCurrentlyPlaying, isNextProgramme, inProgressTime, isRecentlyWatched, isWatchLater, channelID)
         return id
-    
+
     def cleanEpgConflicts(self, doDelete=False):
         if not self.tablesOK:
             return False
         query = '''SELECT
                 DISTINCT e.id AS id
             FROM epg e1
-            JOIN epg e2 ON 
+            JOIN epg e2 ON
                 (
                     (e1."start" < e2."start" AND e1."end" > e2."start") OR (e1."start" < e2."end" AND e1."end" > e2."end")
                     OR
@@ -441,9 +441,9 @@ class O2tvgoDB:
                 self.logNtc("Successfully deleted "+str(deletedCnt)+" EPG conflicts from the DB - IDs: "+", ".join(map( str, toDelete )))
             else:
                 self.logNtc("There are "+str(deletedCnt)+" EPG conflicts to delete from the DB - IDs: "+", ".join(map( str, toDelete )))
-        
+
         return deletedCnt
-    
+
     def cleanEpgDuplicates(self, doDelete=False):
         if not self.tablesOK:
             return False
@@ -451,7 +451,7 @@ class O2tvgoDB:
         duplicates = {}
         i = 0
         for row in self.cursor:
-            duplicates[i] = {"epgId" : row["epgId"],  "cnt": row["cnt"]}
+            duplicates[i] = {"epgId" : row["epgId"], "cnt": row["cnt"]}
             i += 1
         if not duplicates:
             return { "cleaned": False }
@@ -460,7 +460,7 @@ class O2tvgoDB:
             epgId = duplicates[i]["epgId"]
             cnt = duplicates[i]["cnt"]
             limit = cnt - 1
-            self.cexec("SELECT id FROM epg WHERE epgId = ? LIMIT ?",  (epgId,  limit))
+            self.cexec("SELECT id FROM epg WHERE epgId = ? LIMIT ?", (epgId, limit))
             for row in self.cursor:
                 toDelete.append(row["id"])
         if toDelete:
@@ -469,7 +469,7 @@ class O2tvgoDB:
                 for id in toDelete:
                     self.cexec("DELETE FROM epg WHERE id = ?", (id, ))
             return {
-                "duplicates": duplicates, 
+                "duplicates": duplicates,
                 "toDelete": toDelete,
                 "cleaned": len(toDelete)
             }
@@ -479,7 +479,7 @@ class O2tvgoDB:
                 "duplicates": duplicates,
                 "cleaned": False
             }
-    
+
     def cleanChannelDuplicates(self, doDelete=False):
         if not self.tablesOK:
             return False
@@ -487,7 +487,7 @@ class O2tvgoDB:
         duplicates = {}
         i = 0
         for row in self.cursor:
-            duplicates[i] = {"key" : row["key"],  "cnt": row["cnt"]}
+            duplicates[i] = {"key" : row["key"], "cnt": row["cnt"]}
             i += 1
         if not duplicates:
             return
@@ -496,7 +496,7 @@ class O2tvgoDB:
             key = duplicates[i]["key"]
             cnt = duplicates[i]["cnt"]
             limit = cnt - 1
-            self.cexec("SELECT id FROM channels WHERE \"key\" = ? LIMIT ?",  (key,  limit))
+            self.cexec("SELECT id FROM channels WHERE \"key\" = ? LIMIT ?", (key, limit))
             for row in self.cursor:
                 toDelete.append(row["id"])
         if toDelete:
@@ -505,7 +505,7 @@ class O2tvgoDB:
                 for id in toDelete:
                     self.cexec("DELETE FROM channels WHERE id = ?", (id, ))
             return {
-                "duplicates": duplicates, 
+                "duplicates": duplicates,
                 "toDelete": toDelete
             }
         else:
@@ -521,7 +521,7 @@ class O2tvgoDB:
         duplicates = {}
         i = 0
         for row in self.cursor:
-            duplicates[i] = {"name" : row["name"],  "cnt": row["cnt"]}
+            duplicates[i] = {"name" : row["name"], "cnt": row["cnt"]}
             i += 1
         if not duplicates:
             return
@@ -530,7 +530,7 @@ class O2tvgoDB:
             name = duplicates[i]["name"]
             cnt = duplicates[i]["cnt"]
             limit = cnt - 1
-            self.cexec("SELECT id FROM lock WHERE \"name\" = ? LIMIT ?",  (name,  limit))
+            self.cexec("SELECT id FROM lock WHERE \"name\" = ? LIMIT ?", (name, limit))
             for row in self.cursor:
                 toDelete.append(row["id"])
         if toDelete:
@@ -539,7 +539,7 @@ class O2tvgoDB:
                 for id in toDelete:
                     self.cexec("DELETE FROM lock WHERE id = ?", (id, ))
             return {
-                "duplicates": duplicates, 
+                "duplicates": duplicates,
                 "toDelete": toDelete
             }
         else:
@@ -555,7 +555,7 @@ class O2tvgoDB:
         duplicates = {}
         i = 0
         for row in self.cursor:
-            duplicates[i] = {"title_pattern" : row["title_pattern"],  "cnt": row["cnt"]}
+            duplicates[i] = {"title_pattern" : row["title_pattern"], "cnt": row["cnt"]}
             i += 1
         if not duplicates:
             return
@@ -564,7 +564,7 @@ class O2tvgoDB:
             title_pattern = duplicates[i]["title_pattern"]
             cnt = duplicates[i]["cnt"]
             limit = cnt - 1
-            self.cexec("SELECT id FROM favourites WHERE \"title_pattern\" = ? LIMIT ?",  (title_pattern,  limit))
+            self.cexec("SELECT id FROM favourites WHERE \"title_pattern\" = ? LIMIT ?", (title_pattern, limit))
             for row in self.cursor:
                 toDelete.append(row["id"])
         if toDelete:
@@ -573,7 +573,7 @@ class O2tvgoDB:
                 for id in toDelete:
                     self.cexec("DELETE FROM favourites WHERE id = ?", (id, ))
             return {
-                "duplicates": duplicates, 
+                "duplicates": duplicates,
                 "toDelete": toDelete
             }
         else:
@@ -583,18 +583,18 @@ class O2tvgoDB:
             }
 
     def deleteOldEpg(self, endBefore):
-        return self.cexec("DELETE FROM epg WHERE \"end\" < ?",  (endBefore, ))
-    
+        return self.cexec("DELETE FROM epg WHERE \"end\" < ?", (endBefore, ))
+
     def _getEpgColumns(self):
         return ["epgId", "start", "startTimestamp", "startEpgTime", "end", "endTimestamp", "endEpgTime", "title", "plot", "plotoutline", "fanart_image", "genre", "genres", "channelID",
                   "isCurrentlyPlaying", "isNextProgramme", "inProgressTime", "isRecentlyWatched", "isWatchLater"]
     def _getEpgColumnsInt(self):
         return ["epgId", "start", "startTimestamp", "startEpgTime", "end", "endTimestamp", "endEpgTime", "isCurrentlyPlaying", "isNextProgramme", "inProgressTime", "isRecentlyWatched", "isWatchLater", "channelID"]
-    
+
     def getEpgRow(self, id, channelID):
         if not self.tablesOK:
             return False
-        self.cexec("SELECT * FROM epg where id = ? AND channelID = ?",  (id, channelID))
+        self.cexec("SELECT * FROM epg where id = ? AND channelID = ?", (id, channelID))
         epgDict = {}
         epgColumns = self._getEpgColumns()
         for row in self.cursor:
@@ -613,7 +613,7 @@ class O2tvgoDB:
     def getEpgRowByStart(self, start, channelID):
         if not self.tablesOK:
             return False
-        self.cexec("SELECT * FROM epg where \"start\" = ? AND channelID = ?",  (start, channelID))
+        self.cexec("SELECT * FROM epg where \"start\" = ? AND channelID = ?", (start, channelID))
         epgDict = {}
         epgColumns = self._getEpgColumns()
         for row in self.cursor:
@@ -629,7 +629,7 @@ class O2tvgoDB:
                     epgDict[col] = ""
             return epgDict
         # No luck #
-        self.cexec("SELECT * FROM epg where \"start\" < ? AND \"end\" > ? AND channelID = ?",  (start, start, channelID))
+        self.cexec("SELECT * FROM epg where \"start\" < ? AND \"end\" > ? AND channelID = ?", (start, start, channelID))
         epgDict = {}
         epgColumns = self._getEpgColumns()
         for row in self.cursor:
@@ -649,7 +649,7 @@ class O2tvgoDB:
     def getEpgRowByEnd(self, end, channelID):
         if not self.tablesOK:
             return False
-        self.cexec("SELECT * FROM epg where \"end\" = ? AND channelID = ?",  (end, channelID))
+        self.cexec("SELECT * FROM epg where \"end\" = ? AND channelID = ?", (end, channelID))
         epgDict = {}
         epgColumns = self._getEpgColumns()
         for row in self.cursor:
@@ -665,7 +665,7 @@ class O2tvgoDB:
                     epgDict[col] = ""
             return epgDict
         # No luck #
-        self.cexec("SELECT * FROM epg where \"start\" < ? AND \"end\" > ? AND channelID = ?",  (end, end, channelID))
+        self.cexec("SELECT * FROM epg where \"start\" < ? AND \"end\" > ? AND channelID = ?", (end, end, channelID))
         epgDict = {}
         epgColumns = self._getEpgColumns()
         for row in self.cursor:
@@ -685,7 +685,7 @@ class O2tvgoDB:
     def getEpgRows(self, channelID):
         if not self.tablesOK:
             return False
-        self.cexec("SELECT * FROM epg where channelID = ?",  (channelID, ))
+        self.cexec("SELECT * FROM epg where channelID = ?", (channelID, ))
         i = 0
         epgDict = {}
         epgColumns = self._getEpgColumns()
@@ -703,7 +703,7 @@ class O2tvgoDB:
                     epgDict[index][col] = ""
             i += 1
         return epgDict
-    
+
     def getEpgRowsByList(self, list):
         if not self.tablesOK:
             return False
@@ -740,7 +740,7 @@ class O2tvgoDB:
                     epgDict[col] = ""
             epgList.append(epgDict)
         return epgList
-    
+
     def getChannelsByGenre(self, genre):
         if not self.tablesOK:
             return False
@@ -760,12 +760,12 @@ class O2tvgoDB:
             channelDict = {
                 "channelID": row["channelID"],
                 "channelName": row["name"],
-                "icon": row["icon"], 
+                "icon": row["icon"],
                 "count": row["cnt"]
             }
             channelList.append(channelDict)
         return channelList
-    
+
     def getEpgByGenre(self, genre, channelID):
         if not self.tablesOK:
             return False
@@ -789,7 +789,7 @@ class O2tvgoDB:
                     epgDict[col] = ""
             epgList.append(epgDict)
         return epgList
-    
+
     def moveEpgToWatched(self):
         if not self.tablesOK:
             return False
@@ -799,11 +799,11 @@ class O2tvgoDB:
         if rowCount > 0:
             self.cexec("UPDATE epg SET inProgressTime = 0, isWatchLater = 0, isRecentlyWatched = 1 WHERE inProgressTime > 0 AND (\"end\" - \"start\" - inProgressTime) < ?", (timeFromEnd, ))
         return rowCount
-    
+
     def getEpgChannelRow(self, epgRowID):
         if not self.tablesOK:
             return False
-        self.cexec("SELECT e.*, ch.name AS channelName, ch.key AS channelKey FROM epg e JOIN channels ch ON e.channelID = ch.id WHERE e.id = ?",  (epgRowID, ))
+        self.cexec("SELECT e.*, ch.name AS channelName, ch.key AS channelKey FROM epg e JOIN channels ch ON e.channelID = ch.id WHERE e.id = ?", (epgRowID, ))
         i = 0
         epgDict = {}
         epgColumns = self._getEpgColumns()
@@ -822,7 +822,7 @@ class O2tvgoDB:
                     epgDict[col] = ""
             i += 1
         return epgDict
-    
+
     def setLock(self, name, val=None):
         if not self.tablesOK:
             return False
@@ -830,14 +830,14 @@ class O2tvgoDB:
         if not val:
             val = 0
         if lockVal == -1:
-            self.cexec("INSERT INTO lock (name, val) VALUES (?, ?)",  (name, val))
+            self.cexec("INSERT INTO lock (name, val) VALUES (?, ?)", (name, val))
         else:
-            self.cexec("UPDATE lock SET val = ? WHERE name = ?",  (val, name))
-    
-    def getLock(self, name,  silent=True, defaultVal=0):
+            self.cexec("UPDATE lock SET val = ? WHERE name = ?", (val, name))
+
+    def getLock(self, name, silent=True, defaultVal=0):
         if not self.tablesOK:
             return False
-        self.cexec("SELECT val FROM lock WHERE name = ?",  (name, ))
+        self.cexec("SELECT val FROM lock WHERE name = ?", (name, ))
         all = self.cursor.fetchall()
         rowcount = len(all)
         if rowcount > 1:
@@ -849,14 +849,14 @@ class O2tvgoDB:
                 self.logWarn("No row matches the lock search criteria for: name = "+name+"!")
             return defaultVal
         r = all[0]
-        val = r[0]        
+        val = r[0]
         return val
-        
+
     def clearCurrentlyPlaying(self):
-        self.cexec("UPDATE epg SET isCurrentlyPlaying = ? WHERE isCurrentlyPlaying = ?",  (0, 1))
-        
+        self.cexec("UPDATE epg SET isCurrentlyPlaying = ? WHERE isCurrentlyPlaying = ?", (0, 1))
+
     def clearNextProgramme(self):
-        self.cexec("UPDATE epg SET isNextProgramme = ? WHERE isNextProgramme = ?",  (0, 1))
+        self.cexec("UPDATE epg SET isNextProgramme = ? WHERE isNextProgramme = ?", (0, 1))
     def getFavourites(self):
         if not self.tablesOK:
             return False
@@ -873,14 +873,14 @@ class O2tvgoDB:
             }
             favList.append(favDict)
         return favList
-    
+
     def getFavourite(self, rowID=None, title_pattern=None, silent=True):
         if not self.tablesOK or (not rowID and not title_pattern):
             return False
         if title_pattern:
-            self.cexec("SELECT title_pattern FROM favourites WHERE title_pattern = ?",  (title_pattern, ))
+            self.cexec("SELECT title_pattern FROM favourites WHERE title_pattern = ?", (title_pattern, ))
         else:
-            self.cexec("SELECT title_pattern FROM favourites WHERE id = ?",  (rowID, ))
+            self.cexec("SELECT title_pattern FROM favourites WHERE id = ?", (rowID, ))
         all = self.cursor.fetchall()
         rowcount = len(all)
         if rowcount > 1:
@@ -892,9 +892,9 @@ class O2tvgoDB:
                 self.logWarn("No row matches the favourites search criteria for: id = "+str(rowID)+"!")
             return False
         r = all[0]
-        val = r[0]        
+        val = r[0]
         return val
-    
+
     def addFavourite(self, title_pattern):
         if not self.tablesOK:
             return False
@@ -902,23 +902,23 @@ class O2tvgoDB:
         if val:
             return True
         else:
-            self.cexec("INSERT INTO favourites (title_pattern) VALUES (?)",  (title_pattern, ))
-    
+            self.cexec("INSERT INTO favourites (title_pattern) VALUES (?)", (title_pattern, ))
+
     def updateFavourite(self, rowID, title_pattern):
         if not self.tablesOK:
             return False
-        self.cexec("UPDATE favourites SET title_pattern = ? WHERE id = ?",  (title_pattern, rowID))
+        self.cexec("UPDATE favourites SET title_pattern = ? WHERE id = ?", (title_pattern, rowID))
         self.cleanFavouriteDuplicates(doDelete=True)
 
     def removeFavourite(self, rowID):
         if not self.tablesOK:
             return False
-        self.cexec("DELETE FROM favourites WHERE id = ?",  (rowID, ))
-    
+        self.cexec("DELETE FROM favourites WHERE id = ?", (rowID, ))
+
     def getEpgListCounts(self, silent=True):
         if not self.tablesOK:
             return False
-        sql = '''SELECT SUM(isInProgress) isInProgress, SUM(isRecentlyWatched) isRecentlyWatched, SUM(isWatchLater) isWatchLater, (SELECT COUNT(distinct title_pattern) FROM favourites) favourites 
+        sql = '''SELECT SUM(isInProgress) isInProgress, SUM(isRecentlyWatched) isRecentlyWatched, SUM(isWatchLater) isWatchLater, (SELECT COUNT(distinct title_pattern) FROM favourites) favourites
             FROM (
                 SELECT id, CASE WHEN inProgressTime > 0 THEN 1 ELSE 0 END isInProgress, CASE WHEN isRecentlyWatched > 0 THEN 1 ELSE 0 END isRecentlyWatched, CASE WHEN isWatchLater > 0 THEN 1 ELSE 0 END isWatchLater
                 FROM epg
@@ -933,16 +933,16 @@ class O2tvgoDB:
             if not silent:
                 self.logWarn("No row was returned in getEpgListCounts()!")
             return {
-                "isInProgress": 0, 
-                "isRecentlyWatched": 0, 
-                "isWatchLater": 0, 
+                "isInProgress": 0,
+                "isRecentlyWatched": 0,
+                "isWatchLater": 0,
                 "favourites": 0
             }
         r = all[0]
         return {
-            "isInProgress": r[0], 
-            "isRecentlyWatched": r[1], 
-            "isWatchLater": r[2], 
+            "isInProgress": r[0],
+            "isRecentlyWatched": r[1],
+            "isWatchLater": r[2],
             "favourites": r[3]
         }
 

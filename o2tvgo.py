@@ -12,8 +12,8 @@ __email__ = "charliecek@gmail.com"
 
 _COMMON_HEADERS = { "X-Nangu-App-Version" : "Android#3.5.31.0-release",
                     "X-Nangu-Device-Name" : "Lenovo B6000-H",
-                    "X-NanguTv-Device-size": "large", 
-                    "X-NanguTv-Device-density": "213", 
+                    "X-NanguTv-Device-size": "large",
+                    "X-NanguTv-Device-density": "213",
                     "User-Agent" : "Dalvik/1.6.0 (Linux; U; Android 4.4.2; Lenovo B6000-H Build/KOT49H)",
                     "Accept-Encoding": "gzip",
                     "Connection" : "Keep-Alive" }
