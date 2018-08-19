@@ -10,13 +10,13 @@ __version__ = "1.0.2"
 __email__ = "charliecek@gmail.com"
 
 
-_COMMON_HEADERS = { "X-Nangu-App-Version" : "Android#3.5.31.0-release",
-                    "X-Nangu-Device-Name" : "Lenovo B6000-H",
-                    "X-NanguTv-Device-size": "large",
-                    "X-NanguTv-Device-density": "213",
-                    "User-Agent" : "Dalvik/1.6.0 (Linux; U; Android 4.4.2; Lenovo B6000-H Build/KOT49H)",
-                    "Accept-Encoding": "gzip",
-                    "Connection" : "Keep-Alive" }
+_COMMON_HEADERS = {"X-Nangu-App-Version" : "Android#3.5.31.0-release",
+                   "X-Nangu-Device-Name" : "Lenovo B6000-H",
+                   "X-NanguTv-Device-size": "large",
+                   "X-NanguTv-Device-density": "213",
+                   "User-Agent" : "Dalvik/1.6.0 (Linux; U; Android 4.4.2; Lenovo B6000-H Build/KOT49H)",
+                   "Accept-Encoding": "gzip",
+                   "Connection" : "Keep-Alive"}
 
 # Kanál
 class LiveChannel:
@@ -57,12 +57,12 @@ class LiveChannel:
         playlist = None
         while access_token:
             params = {"serviceType":"LIVE_TV",
-              "subscriptionCode":subscription_code,
-              "channelKey": self.channel_key,
-              "deviceType":"TABLET",
-              "streamingProtocol":"HLS"}
+                      "subscriptionCode":subscription_code,
+                      "channelKey": self.channel_key,
+                      "deviceType":"TABLET",
+                      "streamingProtocol":"HLS"}
             headers = _COMMON_HEADERS
-            cookies = { "access_token": access_token, "deviceId": self._o2tv.device_id }
+            cookies = {"access_token": access_token, "deviceId": self._o2tv.device_id}
             try:
                 req = requests.get('http://app.o2tv.cz/sws/server/streaming/uris.json', params=params, headers=headers, cookies=cookies)
             except Exception as e:
@@ -92,14 +92,14 @@ class LiveChannel:
         subscription_code = self._o2tv.subscription_code
         playlist = None
         while access_token:
-            params = {"serviceType":"STARTOVER_TV",
-              "subscriptionCode": subscription_code,
-              "channelKey": self.channel_key,
-              "deviceType":"TABLET",
-              "fromTimestamp": fromTimestamp,
-              "streamingProtocol":"HLS"}
+            params = {"serviceType": "STARTOVER_TV",
+                      "subscriptionCode": subscription_code,
+                      "channelKey": self.channel_key,
+                      "deviceType": "TABLET",
+                      "fromTimestamp": fromTimestamp,
+                      "streamingProtocol": "HLS"}
             headers = _COMMON_HEADERS
-            cookies = { "access_token": access_token, "deviceId": self._o2tv.device_id }
+            cookies = {"access_token": access_token, "deviceId": self._o2tv.device_id}
             try:
                 req = requests.get('http://app.o2tv.cz/sws/server/streaming/uris.json', params=params, headers=headers, cookies=cookies)
             except Exception as e:
@@ -129,15 +129,15 @@ class LiveChannel:
         playlist = None
         while access_token:
             params = {"serviceType":"STARTOVER_TV",
-              "subscriptionCode":subscription_code,
-              "channelKey": self.channel_key,
-              "deviceType":"TABLET",
-              "fromTimestamp": fromTimestamp,
-              "toTimestamp": toTimestamp,
-              "streamingProtocol":"HLS"}
+                      "subscriptionCode":subscription_code,
+                      "channelKey": self.channel_key,
+                      "deviceType":"TABLET",
+                      "fromTimestamp": fromTimestamp,
+                      "toTimestamp": toTimestamp,
+                      "streamingProtocol":"HLS"}
             #logDbg(params);
             headers = _COMMON_HEADERS
-            cookies = { "access_token": access_token, "deviceId": self._o2tv.device_id }
+            cookies = {"access_token": access_token, "deviceId": self._o2tv.device_id}
             try:
                 req = requests.get('http://app.o2tv.cz/sws/server/streaming/uris.json', params=params, headers=headers, cookies=cookies)
             except Exception as e:
@@ -171,7 +171,7 @@ class RequestError(BaseException):
 
 class O2TVGO:
 
-    def __init__(self, device_id, username, password, _logs_ = None,  scriptname = None, logId="O2TVGO/IPTVSimple"):
+    def __init__(self, device_id, username, password, _logs_=None, scriptname=None, logId="O2TVGO/IPTVSimple"):
         self.username = username
         self.password = password
         self._live_channels = {}
@@ -213,13 +213,13 @@ class O2TVGO:
             raise AuthenticationError()
         headers = _COMMON_HEADERS
         headers["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8"
-        data = {  'grant_type' : 'password',
-                  'client_id' : 'tef-production-mobile',
-                  'client_secret' : '627a4f43b2eea512702127e09c3921fc',
-                  'username' : self.username,
-                  'password' : self.password,
-                  'platform_id' : '231a7d6678d00c65f6f3b2aaa699a0d0',
-                  'language' : 'cs'}
+        data = {'grant_type' : 'password',
+                'client_id' : 'tef-production-mobile',
+                'client_secret' : '627a4f43b2eea512702127e09c3921fc',
+                'username' : self.username,
+                'password' : self.password,
+                'platform_id' : '231a7d6678d00c65f6f3b2aaa699a0d0',
+                'language' : 'cs'}
         req = requests.post('https://oauth.o2tv.cz/oauth/token', data=data, headers=headers, verify=False)
         j = req.json()
         if 'error' in j:
@@ -239,7 +239,7 @@ class O2TVGO:
             self.refresh_access_token()
         access_token = self.access_token
         headers = _COMMON_HEADERS
-        cookies = { "access_token": access_token, "deviceId": self.device_id }
+        cookies = {"access_token": access_token, "deviceId": self.device_id}
         try:
             req = requests.get('http://app.o2tv.cz/sws/subscription/settings/subscription-configuration.json', headers=headers, cookies=cookies)
         except Exception as e:
@@ -274,14 +274,14 @@ class O2TVGO:
         locality = self.locality
         if len(self._live_channels) == 0:
             headers = _COMMON_HEADERS
-            cookies = { "access_token": access_token, "deviceId": self.device_id }
-            params = { "locality": locality,
-                "tariff": tariff,
-                "isp": self.isp,
-                "language": self.language,
-                "deviceType": "MOBILE",
-                "liveTvStreamingProtocol":"HLS",
-                "offer": offer}
+            cookies = {"access_token": access_token, "deviceId": self.device_id}
+            params = {"locality": locality,
+                      "tariff": tariff,
+                      "isp": self.isp,
+                      "language": self.language,
+                      "deviceType": "MOBILE",
+                      "liveTvStreamingProtocol":"HLS",
+                      "offer": offer}
             try:
                 req = requests.get('http://app.o2tv.cz/sws/server/tv/channels.json', params=params, headers=headers, cookies=cookies)
             except Exception as e:
@@ -310,11 +310,11 @@ class O2TVGO:
             offset = 0
             while not done:
                 headers = _COMMON_HEADERS
-                params = { "language": self.language,
-                    "audience": "over_18",
-                    "channelKey": self._live_channels.keys(),
-                    "limit": 30,
-                    "offset": offset}
+                params = {"language": self.language,
+                          "audience": "over_18",
+                          "channelKey": self._live_channels.keys(),
+                          "limit": 30,
+                          "offset": offset}
                 try:
                     req = requests.get('http://www.o2tv.cz/mobile/tv/channels.json', params=params, headers=headers)
                 except Exception as e:
@@ -346,7 +346,7 @@ class O2TVGO:
         if not self.channel_key:
             return
         headers = _COMMON_HEADERS
-        cookies = { "access_token": access_token, "deviceId": self.device_id }
+        cookies = {"access_token": access_token, "deviceId": self.device_id}
         timestampNow = int(time.time())
         if self.forceFromTimestamp:
             fromTimestamp = int(self.forceFromTimestamp) * 1000
@@ -355,20 +355,20 @@ class O2TVGO:
                 secondsToLoadFrom = self.hoursToLoadFrom * 3600
             else:
                 secondsToLoadFrom = 5 * 60
-            fromTimestamp = ( timestampNow - secondsToLoadFrom ) * 1000
+            fromTimestamp = (timestampNow - secondsToLoadFrom) * 1000
 
         if self.hoursToLoad:
             hoursToLoad = self.hoursToLoad
         else:
             hoursToLoad = 24
-        toTimestamp = ( timestampNow + 3600 * hoursToLoad ) * 1000
+        toTimestamp = (timestampNow + 3600 * hoursToLoad) * 1000
         if fromTimestamp >= toTimestamp:
             self.logErr("O2TVGO.channel_epg(): fromTimestamp >= toTimestamp ("+str(fromTimestamp)+" >= "+str(toTimestamp)+")")
             return False
         params = {"language": self.language,
-            "channelKey": self.channel_key,
-            "fromTimestamp": fromTimestamp,
-            "toTimestamp": toTimestamp}
+                  "channelKey": self.channel_key,
+                  "fromTimestamp": fromTimestamp,
+                  "toTimestamp": toTimestamp}
         try:
             req = requests.get('http://app.o2tv.cz/sws/server/tv/channel-programs.json', params=params, headers=headers, cookies=cookies)
         except Exception as e:
@@ -391,9 +391,9 @@ class O2TVGO:
             self.refresh_access_token()
         access_token = self.access_token
         headers = _COMMON_HEADERS
-        cookies = { "access_token": access_token, "deviceId": self.device_id }
+        cookies = {"access_token": access_token, "deviceId": self.device_id}
         params = {"language": self.language,
-            "epgId": self.epg_id}
+                  "epgId": self.epg_id}
         try:
             req = requests.get('http://app.o2tv.cz/sws/server/tv/epg-detail.json', params=params, headers=headers, cookies=cookies)
         except Exception as e:
@@ -415,11 +415,11 @@ class O2TVGO:
         if not self.channel_key:
             return
         headers = _COMMON_HEADERS
-        cookies = { "access_token": access_token, "deviceId": self.device_id }
+        cookies = {"access_token": access_token, "deviceId": self.device_id}
         params = {"_origin": "http://www.o2tv.cz",
-            "contentDataType": "EPG",
-            "contentId": epgId,
-            "watchPosition": watchPosition}
+                  "contentDataType": "EPG",
+                  "contentId": epgId,
+                  "watchPosition": watchPosition}
         try:
             req = requests.get('http://app.o2tv.cz/sws/subscription/content/add-visited.json', params=params, headers=headers, cookies=cookies)
         except Exception as e:

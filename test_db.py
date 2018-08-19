@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os,  json,  re, traceback,  sys,  time
+import os, json, re, traceback, sys, time
 from db import O2tvgoDB
 _m3u_json_= "/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/o2tvgo-prgs.json."
 _xmltv_json_base_ = "/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/o2tvgo-epg-"
@@ -30,7 +30,7 @@ def upgradeConfigsFromJsonToDb():
                     if not id:
                         index = indexesByKey[ch["channel_key"]]
                         baseName = baseNamesByIndexes[index]
-                        idNew = _db_.addChannel(ch["channel_key"],  channelKeyClean,  ch["name"], baseName)
+                        idNew = _db_.addChannel(ch["channel_key"], channelKeyClean, ch["name"], baseName)
                         if not idNew:
                             successM3U = False
             if "chJsNumByIndex" in channelsDict:
@@ -100,7 +100,7 @@ def upgradeConfigsFromJsonToDb():
 
 if __name__ == '__main__':
     db_path = "/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/o2tvgo.db"
-    _db_ = O2tvgoDB(db_path=db_path, profile_path="/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/",  plugin_path="",_notification_disable_all_=False, _logs_=None)
+    _db_ = O2tvgoDB(db_path=db_path, profile_path="/home/kajo/.kodi/userdata/addon_data/plugin.video.o2tvgo.iptv.simple/", plugin_path="",_notification_disable_all_=False, _logs_=None)
 
 #    res = upgradeConfigsFromJsonToDb()
 
@@ -108,8 +108,8 @@ if __name__ == '__main__':
 
 #    timestampNow = int(time.time())
 #    olderThan = (timestampNow -  (2*24*3600))
-#    print(timestampNow,  olderThan)
-#    _db_.deleteOldEpg(endBefore = olderThan)
+#    print(timestampNow, olderThan)
+#    _db_.deleteOldEpg(endBefore=olderThan)
 
     _epgLockTimeout_ = 10*60
     locktime = _db_.getLock("saveEpgRunning")
@@ -125,9 +125,9 @@ if __name__ == '__main__':
         print(str(locktime))
         print(str(timestampNow - locktime))
 
-    print(_db_.getEpgRow(7497,  35))
+    print(_db_.getEpgRow(7497, 35))
 
-#    res = _db_.cleanEpgDuplicates(doDelete = True)
+#    res = _db_.cleanEpgDuplicates(doDelete=True)
 #    if res:
 #        if res["duplicates"]:
 #            print(len(res["duplicates"]))
@@ -144,15 +144,15 @@ if __name__ == '__main__':
 #    if not id:
 #        id = _db_.addChannel('Jednotka HD', 'Jednotka_HD', 'Jednotka HD', '5001-tv-tablet')
 #        print(id)
-#    id2 = _db_.updateChannel('Jednotka HD1', 'Jednotka_HD1', 'Jednotka HD1', '5001-tv-tablet',  id)
+#    id2 = _db_.updateChannel('Jednotka HD1', 'Jednotka_HD1', 'Jednotka HD1', '5001-tv-tablet', id)
 #    print(id2)
 #    id = _db_.updateChannel('Jednotka HD2', 'Jednotka_HD2', 'Jednotka HD2', '5001-tv-tablet')
 #    print(id)
-#    id = _db_.updateChannel('Jednotka HD2', 'Jednotka_HD2', 'Jednotka HD2', '5001-tv-tablet',  None,  None,  'Jednotka_HD1')
+#    id = _db_.updateChannel('Jednotka HD2', 'Jednotka_HD2', 'Jednotka HD2', '5001-tv-tablet', None, None, 'Jednotka_HD1')
 #    print(id)
-#    id = _db_.updateChannel('Jednotka HD2', 'Jednotka_HD2', 'Jednotka HD2', '5001-tv-tablet',  None,  None,  'Jednotka_HD2')
+#    id = _db_.updateChannel('Jednotka HD2', 'Jednotka_HD2', 'Jednotka HD2', '5001-tv-tablet', None, None, 'Jednotka_HD2')
 #    print(id)
-#    id = _db_.addEpg(epgId=123, start=123, startTimestamp=1234, startEpgTime=1234, end=234, endTimestamp=234, endEpgTime=234, title="title", channelID=id,  channelKeyClean='Jednotka_HD1')
+#    id = _db_.addEpg(epgId=123, start=123, startTimestamp=1234, startEpgTime=1234, end=234, endTimestamp=234, endEpgTime=234, title="title", channelID=id, channelKeyClean='Jednotka_HD1')
 #    print(id)
 #    id = _db_.addEpg(epgId=123, start=123, startTimestamp=1234, startEpgTime=1234, end=234, endTimestamp=234, endEpgTime=234, title="title", channelKeyClean='Jednotka_HD1')
 #    print(id)

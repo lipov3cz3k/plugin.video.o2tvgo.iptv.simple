@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json,  xbmc,  sys
+import json, xbmc, sys
 
 class JsonRPC:
-    def __init__(self,  _logs_ = None,  scriptname="O2TVGO/IPTVSimple", logId="O2TVGO/IPTVSimple"):
+    def __init__(self, _logs_=None, scriptname="O2TVGO/IPTVSimple", logId="O2TVGO/IPTVSimple"):
         if _logs_:
             self._logs_ = _logs_
         else:
@@ -27,9 +27,9 @@ class JsonRPC:
 
     def _getAddons(self):
         payloadGetAddons = {
-          "jsonrpc": "2.0",
-          "id": "1",
-          "method": "Addons.GetAddons",
+                            "jsonrpc": "2.0",
+                            "id": "1",
+                            "method": "Addons.GetAddons",
         }
         payloadGetAddonsJson = json.dumps(payloadGetAddons)
         jsonGetAddonsResponse = xbmc.executeJSONRPC(payloadGetAddonsJson)
@@ -49,14 +49,13 @@ class JsonRPC:
             return False
 
     def _getAddonDetails(self, addonId):
-        payloadGetDetails = {
-          "jsonrpc": "2.0",
-          "id": "1",
-          "method": "Addons.GetAddonDetails",
-          "params": {
-            "addonid": addonId,
-            "properties": ["enabled","name"]
-          }
+        payloadGetDetails = {"jsonrpc": "2.0",
+                             "id": "1",
+                             "method": "Addons.GetAddonDetails",
+                             "params": {
+                               "addonid": addonId,
+                               "properties": ["enabled","name"]
+                            }
         }
         payloadGetDetailsJson = json.dumps(payloadGetDetails)
         jsonGetDetailsResponse = xbmc.executeJSONRPC(payloadGetDetailsJson)
@@ -75,19 +74,18 @@ class JsonRPC:
             self.logErr("No response from 'Addons.GetAddonDetails' for "+addonId)
             return False
 
-    def _setAddonEnabled(self, addonId, enabled = True):
+    def _setAddonEnabled(self, addonId, enabled=True):
         if enabled:
             strAction = "enabling"
         else:
             strAction = "disabling"
-        payloadSetEnabled = {
-          "jsonrpc": "2.0",
-          "id":"1",
-          "method": "Addons.SetAddonEnabled",
-          "params": {
-            "addonid": addonId,
-            "enabled": enabled
-          }
+        payloadSetEnabled = {"jsonrpc": "2.0",
+                             "id":"1",
+                             "method": "Addons.SetAddonEnabled",
+                             "params": {
+                               "addonid": addonId,
+                               "enabled": enabled
+                            }
         }
         payloadSetEnabledJson = json.dumps(payloadSetEnabled)
         jsonSetEnabledResponse = xbmc.executeJSONRPC(payloadSetEnabledJson)
@@ -109,13 +107,12 @@ class JsonRPC:
             return False
 
     def _getPVRChannels(self):
-        payload = {
-          "jsonrpc": "2.0",
-          "id":"1",
-          "method": "PVR.GetChannels",
-          "params": {
-            "channelgroupid": "alltv"
-          }
+        payload = {"jsonrpc": "2.0",
+                   "id":"1",
+                   "method": "PVR.GetChannels",
+                   "params": {
+                       "channelgroupid": "alltv"
+                       }
         }
         payloadJson = json.dumps(payload)
         jsonResponse = xbmc.executeJSONRPC(payloadJson)
