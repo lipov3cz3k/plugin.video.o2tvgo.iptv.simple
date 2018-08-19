@@ -45,9 +45,58 @@ try:
     _logId_ = "O2TVGO/IPTVSimple"
     _logs_ = Logs(scriptname=_scriptname_, id=_logId_)
     _jsonRPC_ = JsonRPC(_logs_=_logs_, scriptname=_scriptname_, logId=_logId_)
+    _profile_ = xbmc.translatePath(_addon_.getAddonInfo('profile')).decode("utf-8")
+    _lang_ = _addon_.getLocalizedString
+    _xml_lang_ = "cz"
     _addon_pvrIptvSimple_ = None
     _useIptvSimpleTimeshift_ = True
     _epgTimeshift_ = 0
+
+   ## Get refresh rates and limits and other settings as global vars ##
+    _epg_refresh_rate_ = (int(_addon_.getSetting('epg_refresh_rate')) * 60 * 60) - (10 * 60)
+    _limit_epg_per_batch_ = (_addon_.getSetting('limit_epg_per_batch') == 'true')
+    _epg_fetch_batch_limit_ = 999999
+    _epgLockTimeout_ = 0
+    _requestErrorTimeoutMin_ = 15
+    _requestErrorTimeout_ = _requestErrorTimeoutMin_*60
+    if _limit_epg_per_batch_:
+        _epg_fetch_batch_limit_ = int(_addon_.getSetting('epg_fetch_batch_limit'))
+        _epgLockTimeout_ = (int(_addon_.getSetting('epg_fetch_batch_timeout')) * 60)
+    _channel_refresh_rate_ = (int(_addon_.getSetting('channel_refresh_rate')) * 60 * 60) - (10 * 60)
+    _force_restart_ = (_addon_.getSetting('force_restart') == 'true')
+    _use_additional_m3u_ = not (_addon_.getSetting('use_additional_m3u') == '0')
+    if _use_additional_m3u_:
+        # TODO: 1 - file, 2 - folder, 3 - pattern
+        _m3u_additional_ = xbmc.translatePath('special://home/o2tvgo-prgs-additional.m3u')
+    _use_additional_epg_ = not (_addon_.getSetting('use_additional_epg') == '0')
+    if _use_additional_epg_:
+        # TODO: 1 - file, 2 - folder, 3 - pattern
+        _xmltv_additional_filelist_pattern_ = xbmc.translatePath('special://home/rytecxmltv*.gz')
+        _xmltv_additional_ = xbmc.translatePath('special://home/merged_epg.xml')
+        _xmltv_additional_gzip_ = xbmc.translatePath('special://home/merged_epg.xml.gz')
+        _xmltv_test_output_file_ = xbmc.translatePath('special://home/merged_xml_test_out.xml')
+    _configure_cron_ = (_addon_.getSetting('configure_cron') == 'true')
+    _notification_disable_all_ = (_addon_.getSetting('notification_disable_all') == 'true')
+    _notification_refreshing_started_ = (_addon_.getSetting('notification_refreshing_started') == 'true')
+    _notification_pvr_restart_ = (_addon_.getSetting('notification_pvr_restart') == 'true')
+    _logFilePath_ = xbmc.translatePath('special://logpath/kodi.log')
+
+    ###############################################################################
+    ## Logging, debugging, messages - just redeclaring the methods from Logging so I don't have to rewrite every occurence
+    def _toString(text):
+        return _logs_._toString(text)
+    def notificationInfo(msg, sound=False, force=False, dialog=True, idSuffix=""):
+        _logs_.logNtc(msg, idSuffix)
+        if (dialog and not _notification_disable_all_) or force:
+            return _logs_.notificationInfo(msg, sound)
+    def notificationWarning(msg, sound=True, force=False, dialog=True, idSuffix=""):
+        _logs_.logWarn(msg, idSuffix)
+        if (dialog and not _notification_disable_all_) or force:
+            return _logs_.notificationWarning(msg, sound)
+    def notificationError(msg, sound=True, force=False, dialog=True, idSuffix=""):
+        _logs_.logErr(msg, idSuffix)
+        if (dialog and not _notification_disable_all_) or force:
+            return _logs_.notificationError(msg, sound)
 
     def _isAddonInstalled(addonId):
         addons = _jsonRPC_._getAddons()
@@ -147,35 +196,7 @@ try:
         if _epgTimeshift_:
             _epgTimeshift_ = float(_epgTimeshift_)
 
-    ## Get refresh rates and limits and other settings as global vars ##
-    _epg_refresh_rate_ = (int(_addon_.getSetting('epg_refresh_rate')) * 60 * 60) - (10 * 60)
-    _limit_epg_per_batch_ = (_addon_.getSetting('limit_epg_per_batch') == 'true')
-    _epg_fetch_batch_limit_ = 999999
-    _epgLockTimeout_ = 0
-    _requestErrorTimeoutMin_ = 15
-    _requestErrorTimeout_ = _requestErrorTimeoutMin_*60
-    if _limit_epg_per_batch_:
-        _epg_fetch_batch_limit_ = int(_addon_.getSetting('epg_fetch_batch_limit'))
-        _epgLockTimeout_ = (int(_addon_.getSetting('epg_fetch_batch_timeout')) * 60)
-    _channel_refresh_rate_ = (int(_addon_.getSetting('channel_refresh_rate')) * 60 * 60) - (10 * 60)
-    _force_restart_ = (_addon_.getSetting('force_restart') == 'true')
-    _use_additional_m3u_ = not (_addon_.getSetting('use_additional_m3u') == '0')
-    if _use_additional_m3u_:
-        # TODO: 1 - file, 2 - folder, 3 - pattern
-        _m3u_additional_ = xbmc.translatePath('special://home/o2tvgo-prgs-additional.m3u')
-    _use_additional_epg_ = not (_addon_.getSetting('use_additional_epg') == '0')
-    if _use_additional_epg_:
-        # TODO: 1 - file, 2 - folder, 3 - pattern
-        _xmltv_additional_filelist_pattern_ = xbmc.translatePath('special://home/rytecxmltv*.gz')
-        _xmltv_additional_ = xbmc.translatePath('special://home/merged_epg.xml')
-        _xmltv_additional_gzip_ = xbmc.translatePath('special://home/merged_epg.xml.gz')
-        _xmltv_test_output_file_ = xbmc.translatePath('special://home/merged_xml_test_out.xml')
-    _configure_cron_ = (_addon_.getSetting('configure_cron') == 'true')
-    _notification_disable_all_ = (_addon_.getSetting('notification_disable_all') == 'true')
-    _notification_refreshing_started_ = (_addon_.getSetting('notification_refreshing_started') == 'true')
-    _notification_pvr_restart_ = (_addon_.getSetting('notification_pvr_restart') == 'true')
-    _logFilePath_ = xbmc.translatePath('special://logpath/kodi.log')
-
+ 
     ## END changes by @ch ##
 
     _device_id_ = _addon_.getSetting("device_id")
@@ -195,9 +216,6 @@ try:
         _addon_.setSetting("device_id", _device_id_)
 
     ###############################################################################
-    _profile_ = xbmc.translatePath(_addon_.getAddonInfo('profile')).decode("utf-8")
-    _lang_ = _addon_.getLocalizedString
-    _xml_lang_ = "cz"
 #    _first_error_ = (_addon_.getSetting('first_error') == "true")
     _send_errors_ = (_addon_.getSetting('send_errors') == "true")
     _version_ = _addon_.getAddonInfo('version')
@@ -273,25 +291,6 @@ try:
 
 
     ## END: Copied from the original plugin by Štěpán Ort ##
-
-    ###############################################################################
-    ## Logging, debugging, messages - just redeclaring the methods from Logging so I don't have to rewrite every occurence
-    def _toString(text):
-        return _logs_._toString(text)
-    def notificationInfo(msg, sound=False, force=False, dialog=True, idSuffix=""):
-        _logs_.logNtc(msg, idSuffix)
-        if (dialog and not _notification_disable_all_) or force:
-            return _logs_.notificationInfo(msg, sound)
-    def notificationWarning(msg, sound=True, force=False, dialog=True, idSuffix=""):
-        _logs_.logWarn(msg, idSuffix)
-        if (dialog and not _notification_disable_all_) or force:
-            return _logs_.notificationWarning(msg, sound)
-    def notificationError(msg, sound=True, force=False, dialog=True, idSuffix=""):
-        _logs_.logErr(msg, idSuffix)
-        if (dialog and not _notification_disable_all_) or force:
-            return _logs_.notificationError(msg, sound)
-
-    ###############################################################################
     ## Globals ##
     _xmltv_ = xbmc.translatePath('special://home/o2tvgo-epg.xml')
     _m3u_ = xbmc.translatePath('special://home/o2tvgo-prgs.m3u')
